@@ -1,0 +1,31 @@
+{
+  "name": "laszlos-event-dispatcher",
+  "description": "Standard Event Dispatcher implementation with listener priority, flexible listener registration and good debugging support. Avaliable for Node, AMD, and browsers.",
+  "version": "1.8.5",
+  "keywords": [
+    "event",
+    "dispatcher",
+    "event dispatcher",
+    "mediator",
+    "design pattern",
+    "priority",
+    "flexible",
+    "debugging",
+    "node",
+    "amd"
+  ],
+  "license": "MIT",
+  "main": "dist/event-dispatcher-node.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lionel87/event-dispatcher-js.git"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-minify": "0.0.11",
+    "gulp-nunjucks": "^2.2.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-watch": "^4.3.5",
+    "nunjucks": "^2.4.2"
+  }
+}
