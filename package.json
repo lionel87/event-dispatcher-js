@@ -1,5 +1,5 @@
 {
-  "name": "laszlos-event-dispatcher",
+  "name": "@lionel87/event-dispatcher",
   "description": "Standard Event Dispatcher implementation with listener priority, flexible listener registration and good debugging support. Avaliable for Node, AMD, and browsers.",
   "version": "1.8.5",
   "keywords": [
