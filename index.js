@@ -1,12 +1,3 @@
-/*!
- * EventDispatcher
- * @version 1.8.5
- * @author László BULIK
- * @license MIT License
- */
-
-define(function() {
-    
 /**
  * @class
  */
@@ -21,7 +12,7 @@ function EventDispatcher()
 /**
  * Adds an event listener.
  *
- * In debug mode, `listenerName` will be generated automatically by `._getListenerName()` when argument is left blank.
+ * In debug mode, `debugName` will be generated automatically by `._getListenerName()` when argument is left blank.
  *
  * @see _getListenerName
  *
@@ -29,40 +20,40 @@ function EventDispatcher()
  * @param {Object} [context=null] - `this` keyword will be set to the value of `context` when calling the listener. When `method` is `string` it will be searched in `context`.
  * @param {string|Function} method - For strings, `context[method]` must be `Function` type, but only at the time when `.dispatch()` is called.
  * @param {number} [priority=0] - Higher priority means the listener gets executed earlier. When priority equals, listeners called in the order of the definition.
- * @param {string} [listenerName="<context contructor>#<function name>"] - Used in debug mode, this name will be used to identify the listener.
+ * @param {string} [debugName="<context contructor>#<function name>"] - Used in debug mode, this name will be used to identify the listener.
  *
  * @returns {EventDispatcher} This instance.
  */
-EventDispatcher.prototype.addListener = function(eventName, context, method, priority, listenerName)
+EventDispatcher.prototype.addListener = function(eventName, context, method, priority, debugName)
 {
     if (!this.listeners[eventName]) {
         this.listeners[eventName] = [];
     }
 
     if (typeof context === 'function') { // context is missing
-        listenerName = priority;
+        debugName = priority;
         priority = method;
         method = context;
         context = null;
     }
     if (typeof priority !== 'number') { // priority is missing
-        listenerName = priority;
+        debugName = priority;
         priority = 0;
     }
-    if (this.debug && typeof listenerName !== 'string') { // listenerName is missing, only generated in debug mode
-        listenerName = this._getListenerName(context, method);
+    if (this.debug && typeof debugName !== 'string') { // debugName is missing, only generated in debug mode
+        debugName = this._getListenerName(context, method);
     }
 
     var i,
         listeners = this.listeners[eventName],
         listener = {
-            name: listenerName,
             context: context,
             method: method,
-            priority: priority
+            priority: priority,
+            debugName: debugName
         };
 
-    this.debug && this.logger({ type: 'addListener', event: eventName, listener: listener });
+    this.debug && this.logger({ type: 'addListener', eventName: eventName, listener: listener });
 
     for (i = listeners.length; i > 0; --i) {
         if (listeners[i - 1].priority >= listener.priority) {
@@ -100,7 +91,7 @@ EventDispatcher.prototype.removeListener = function(eventName, context, method)
         for (var i = listeners.length - 1; i >= 0; --i) {
             if (listeners[i].context === context && listeners[i].method === method) {
 
-                this.debug && this.logger({ type: 'removeListener', event: eventName, listener: listeners[i] });
+                this.debug && this.logger({ type: 'removeListener', eventName: eventName, listener: listeners[i] });
 
                 listeners.splice(i, 1);
                 if (listeners.length === 0) {
@@ -136,7 +127,7 @@ EventDispatcher.prototype.getListeners = function()
  */
 EventDispatcher.prototype.dispatch = function(eventName, eventData)
 {
-    this.debug && this.logger({ type: 'dispatchBegin', event: eventName, data: eventData });
+    this.debug && this.logger({ type: 'dispatchBegin', eventName: eventName, data: eventData });
 
     var listeners = this.getListeners();
 
@@ -145,11 +136,11 @@ EventDispatcher.prototype.dispatch = function(eventName, eventData)
     if (listeners) {
         for (var i = 0; i < listeners.length; ++i) {
             if (typeof listeners[i].method === 'function') {
-                this.debug && this.logger({ type: 'call', event: eventName, listener: listeners[i], data: eventData });
+                this.debug && this.logger({ type: 'call', eventName: eventName, listener: listeners[i], data: eventData });
                 listeners[i].method.call(listeners[i].context, eventData);
             } else if (typeof listeners[i].method === 'string') {
                 if (typeof listeners[i].context[listeners[i].method] === 'function') {
-                    this.debug && this.logger({ type: 'call', event: eventName, listener: listeners[i], data: eventData });
+                    this.debug && this.logger({ type: 'call', eventName: eventName, listener: listeners[i], data: eventData });
                     listeners[i].context[listeners[i].method].call(listeners[i].context, eventData);
                 } else {
                     throw new TypeError('EventDispatcher: Method "' + listeners[i].method + '" does not exists in this context.');
@@ -162,7 +153,7 @@ EventDispatcher.prototype.dispatch = function(eventName, eventData)
         }
     }
 
-    this.debug && this.logger({ type: 'dispatchEnd', event: eventName, data: eventData });
+    this.debug && this.logger({ type: 'dispatchEnd', eventName: eventName, data: eventData });
 
     return this;
 };
@@ -173,38 +164,43 @@ EventDispatcher.prototype.dispatch = function(eventName, eventData)
  *
  * @param {object} event - The message to display in the log.
  */
-EventDispatcher.prototype.logger = (typeof console !== 'undefined' && console.log) ? function(event)
+EventDispatcher.prototype.logger = function(event)
 {
     var message;
     switch (event.type) {
-        case 'addListener':     // type, event, listener
-            message = 'Adding listener "' + event.listener.name + '" to listen for "' + event.event + '".';
+        case 'addListener':     // eventName, listener
+            message = 'Adding listener "' + event.listener.debugName + '" to listen for "' + event.eventName + '".';
             break;
-        case 'removeListener':  // type, event, listener
-            message = 'Removing listener "' + event.listener.name + '".';
+        case 'removeListener':  // eventName, listener
+            message = 'Removing listener "' + event.listener.debugName + '".';
             break;
-        case 'dispatchBegin':   // type, event, data
-            message = 'Dispatching "' + event.event + '".';
+        case 'dispatchBegin':   // eventName, data
+            message = 'Dispatching "' + event.eventName + '".';
             ++this.logIndentLevel;
             break;
-        case 'dispatchEnd':     // type, event, data
-            message = 'Finished dispatching "' + event.event + '".';
+        case 'dispatchEnd':     // eventName, data
+            message = 'Finished dispatching "' + event.eventName + '".';
             --this.logIndentLevel;
             break;
-        case 'call':            // type, event, data, listener
+        case 'call':            // eventName, listener, data
             if (typeof event.listener.method === 'string') {
-                message = 'Calling "' + event.listener.name + '" by string.';
+                message = 'Calling "' + event.listener.debugName + '" by string.';
             } else {
-                message = 'Calling "' + event.listener.name + '" by reference.';
+                message = 'Calling "' + event.listener.debugName + '" by reference.';
             }
             break;
         default:
             message = 'Unknow event.';
     }
-    console.log('EventDispatcher: '
-        + Array((event.type === 'dispatchBegin' ? this.logIndentLevel - 1 : this.logIndentLevel) + 1).join(this.logIndentText)
-        + message);
-} : function(){};
+    this._doLog(
+        Array((event.type === 'dispatchBegin' ? this.logIndentLevel - 1 : this.logIndentLevel) + 1).join(this.logIndentText)
+        + message
+    );
+};
+
+EventDispatcher.prototype._doLog = (typeof console !== 'undefined' && console.log) ? function(message) {
+    console.log('EventDispatcher: ' + message);
+} : function(){}
 
 /** helper for _getListenerName() */
 var functionNameFromString = /function ([^(]+)\W*\(/i;
@@ -276,6 +272,4 @@ EventDispatcher.prototype._getListenerName = function(context, method)
     return context_name + access_type + method_name;
 };
 
-
-return EventDispatcher;
-});
+module.exports = EventDispatcher;
