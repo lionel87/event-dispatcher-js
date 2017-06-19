@@ -1,0 +1,17 @@
+Adding listener "Object#fnB" to listen for "hello".
+Adding listener "Object~fnC" to listen for "hello".
+Adding listener "fnC" to listen for "hello".
+Adding listener "Object#fnA" to listen for "hello".
+Adding listener "fnC" to listen for "sub.hello".
+Dispatching "hello".
+    Calling "Object#fnA" by reference.
+    Calling "Object#fnB" by string.
+    Calling "Object~fnC" by reference.
+    Dispatching "sub.hello".
+        Calling "fnC" by reference.
+    Finished dispatching "sub.hello".
+    Calling "fnC" by reference.
+    Dispatching "sub.hello".
+        Calling "fnC" by reference.
+    Finished dispatching "sub.hello".
+Finished dispatching "hello".
