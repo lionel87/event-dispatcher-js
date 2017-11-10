@@ -200,7 +200,7 @@ EventDispatcher.prototype.logger = function(event)
 
 EventDispatcher.prototype._doLog = (typeof console !== 'undefined' && console.log) ? function(message) {
     console.log('EventDispatcher: ' + message);
-} : function(){}
+} : function(){};
 
 /** helper for _getListenerName() */
 var functionNameFromString = /function ([^(]+)\W*\(/i;
