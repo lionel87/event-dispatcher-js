@@ -256,11 +256,11 @@ EventDispatcher.prototype._getListenerName = function(context, method)
         if (!method_name) {
             if (method_matches = method.toString().match(functionNameFromString)) {
                 method_name = method_matches[1];
-                access_type = '~';
             } else {
                 if (!this._LNAI) this._LNAI = 1;
                 method_name = 'anonymous(' + (this._LNAI++) + ')';
             }
+            access_type = '~';
         }
     } else if (typeof method === 'function' && (method_matches = method.toString().match(functionNameFromString))) {
         method_name = method_matches[1];
